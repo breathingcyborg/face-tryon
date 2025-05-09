@@ -1,6 +1,9 @@
 {
   "name": "face-tryon",
   "private": true,
+  "repository": {
+    "url": "https://github.com/breathingcyborg/face-tryon.git"
+  },
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
