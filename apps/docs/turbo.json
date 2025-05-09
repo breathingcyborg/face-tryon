@@ -1,0 +1,12 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "dev": {
+      "dependsOn": ["face-tryon-core#build", "face-tryon-react#build"]
+    },
+    "build": {
+      "dependsOn": ["face-tryon-core#build", "face-tryon-react#build"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    }
+  }
+}

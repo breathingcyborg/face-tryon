@@ -1,0 +1,354 @@
+import { Demo } from "../(components)/Demo";
+import { SimpleExample } from "../(components)/examples/SimpleExample";
+import { Callout } from "nextra/components";
+
+# How It Works
+
+## If It Fits It Sits 🐱
+
+- Place your 3D object (e.g, glasses) on [Static Human Face 3D Model](/canonical_face_model.obj).
+- Then delete the face and export your 3D object.
+- Your 3D object will perfectly align correctly on any face.
+- This works as long as you use the same camera setup.
+
+{/\* ## Overview
+
+- Google's mediapipe library detects faces & several face landmarks.
+- It uses a few ml models that run in the browser.
+- The "Face Landmark Model" predicts the coordinates of 468 points.
+- These 468 points represent vertices of a [Static Human Face 3D Model](/canonical_face_model.obj) called "Canonical Face Model".
+- If you align a 3D object like glasses on the [Static Human Face 3D Model](/canonical_face_model.obj) it would perfectly fit on anyones face
+- This works as long as you use the scene and perspective camera setup as the `Face Transform Model` \*/}
+
+## Understanding the demo
+
+Have a look at the demo and the code.
+
+The sections below would explain it one step at at time.
+
+<Demo description="Please allow camera access after clicking the button. Everything is processed on your device, no data leaves your device.">
+  <SimpleExample />
+</Demo>
+
+```tsx copy
+import { Environment } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { CAMERA_POSITION, CAMERA_VERTICAL_FOV_DEGRESS } from "face-tryon-core";
+import {
+  useCameraFrameProvider,
+  useFrameDimensions,
+  useFaces,
+  VideoBackground,
+  FaceMesh,
+  GLTFFaceProp,
+  CoverFit,
+} from "face-tryon-react";
+
+export default function App() {
+  const { provider, video, setVideo } = useCameraFrameProvider();
+  const { width, height } = useFrameDimensions(provider);
+  const faces = useFaces(provider);
+
+  return (
+    <div>
+      <video ref={setVideo} style={{ display: "none" }} autoPlay muted />
+      <div style={{ width: "100%", height: 500 }}>
+        <Canvas
+          camera={{
+            fov: CAMERA_VERTICAL_FOV_DEGRESS,
+            position: CAMERA_POSITION,
+          }}
+        >
+          <Environment preset="studio" />
+          <CoverFit
+            width={width}
+            height={height}
+            cameraVerticalFov={CAMERA_VERTICAL_FOV_DEGRESS}
+          >
+            <VideoBackground
+              cameraVerticalFov={CAMERA_VERTICAL_FOV_DEGRESS}
+              frameDimensions={{ width, height }}
+              image={video}
+            />
+
+            {faces.map((face) => (
+              <>
+                <FaceMesh face={face} />
+                <GLTFFaceProp face={face} modelPath="/black_glasses.glb" />
+              </>
+            ))}
+          </CoverFit>
+        </Canvas>
+      </div>
+    </div>
+  );
+}
+```
+
+### Step 0: Prepare Your 3D Object
+
+Position your 3D Object on the Static Face Model. (optional)
+
+Download [Black Glasses](/black_glasses.glb) if you don't want to use custom 3D Object,
+
+1. Download [Static Human Face Model](/canonical_face_model.obj)
+2. Drag and drop it it in [threejs editor](https://threejs.org/editor/)
+3. Drag and drop your 3D object in threejs editor.
+4. Position your 3D object correctly on the face.
+5. Delete the face model
+6. Export your model in glb format
+7. place your model in public directory of your react app,
+
+### Step 1: Get Frame
+
+First we need to obtain a video frame or an image.
+
+**To Get A Webcam Frame**
+
+```tsx
+import { useCameraFrameProvider } from "face-tryon-react";
+
+const { provider, video, setVideo } = useCameraFrameProvider();
+
+<video ref={setVideo} style={{ display: "none" }} autoPlay muted />;
+```
+
+**To Get A Video Frame**
+
+```tsx
+import { useVideoFrameProvider } from "face-tryon-react";
+
+const { provider, video, setVideo } = useVideoFrameProvider();
+
+<video ref={setVideo} style={{ display: "none" }} autoPlay muted />;
+```
+
+**To Get A Image Frame**
+
+```tsx
+import { useImageFrameProvider } from "face-tryon-react";
+
+const { provider, image, setImage } = useImageFrameProvider();
+
+<img ref={setImage} style={{ display: "none" }} />;
+```
+
+**What is frame provider?**
+
+- A frame provider is nothing but an object with `getFrame` method.
+- Calling `getFrame` returns a `frame` and other metadata such as dimensions of the video/image etc.
+
+```tsx
+const frame = provider.getFrame();
+/**
+{
+    frame: HTMLVideoElement,
+    timestamp: 10;
+    dimensions: {
+        width: 640;
+        height: 480;
+    }
+}
+*/
+```
+
+<Callout type="info">
+    We store the `<video>` & `<img/>` elements in state (not ref) so it can be used reactively — for example, by `VideoBackground`, which listens for changes and updates its texture accordingly.
+</Callout>
+
+### Step 2: Setup Your Scene
+
+#### 1. Setup the camera & lights
+
+Use a perspective camera with a vertical FOV of 63°. Position it at `[0, 0, 0]` so it looks into the screen.
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
+
+{
+  /* Perspective camera with 63 degreee vertical fov, at origin  */
+}
+<Canvas camera={{ fov: 63, position: [0, 0, 0] }}>
+  <Environment preset="studio" />
+  {/* Scene contents */}
+</Canvas>;
+```
+
+For lights we would use `Environment` provided by `@react-three/drei`.
+
+<Callout type="warning">
+  The code won't work properly if the camera params are different.
+</Callout>
+
+#### 2. Set Canvas Size
+
+The parent of `<Canvas>` must have a fixed height. The canvas and the 3D scene will fill this container.
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+
+<div style={{ width: "100%", height: 500 }}>
+  <Canvas camera={{ fov: 63, position: [0, 0, 0] }}>
+    {/* Scene contents */}
+  </Canvas>
+</div>;
+```
+
+#### 3. Get Frame Dimensions
+
+Use the hook to extract frame dimensions from the provider. We need them for the next step.
+
+```tsx
+import { useCameraFrameProvider } from "face-tryon-react";
+import { useFrameDimensions } from "face-tryon-react";
+
+const { provider, video, setVideo } = useCameraFrameProvider();
+
+const { width, height } = useFrameDimensions(provider);
+```
+
+#### 4. Show video in 3D scene
+
+Wrap `VideoBackground` in `CoverFit`. It ensures the video fills the 3D space like `object-fit: cover`.
+Without it there could be some whitespace left in the 3D scene.
+
+```tsx
+import { VideoBackground, CoverFit } from "face-tryon-react";
+
+<CoverFit
+  width={width}
+  height={height}
+  cameraVerticalFov={CAMERA_VERTICAL_FOV_DEGRESS}
+>
+  <VideoBackground
+    cameraVerticalFov={63}
+    frameDimensions={{ width, height }}
+    image={video}
+  />
+</CoverFit>;
+```
+
+#### Putting it all togather
+
+```tsx
+import { Environment } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import {
+  useCameraFrameProvider,
+  useFrameDimensions,
+  VideoBackground,
+  CoverFit,
+} from "face-tryon-react";
+
+export default function App() {
+  const { provider, video, setVideo } = useCameraFrameProvider();
+  const { width, height } = useFrameDimensions(provider);
+
+  return (
+    <div>
+      {/* Hidden video element for webcam feed */}
+      <video ref={setVideo} style={{ display: "none" }} autoPlay muted />
+
+      <div style={{ width: "100%", height: 500 }}>
+        <Canvas camera={{ fov: 63, position: [0, 0, 0] }}>
+          <Environment preset="studio" />
+          <CoverFit
+            width={width}
+            height={height}
+            cameraVerticalFov={CAMERA_VERTICAL_FOV_DEGRESS}
+          >
+            <VideoBackground
+              cameraVerticalFov={63}
+              frameDimensions={{ width, height }}
+              image={video}
+            />
+          </CoverFit>
+        </Canvas>
+      </div>
+    </div>
+  );
+}
+```
+
+So far we have everything we need except the facemesh and props like `glasses` or `hats`
+
+### Step 3: Detect Faces
+
+Download [Face Landmarker Task](/face_landmarker.task) and place it in public directory of your code.
+
+```tsx
+const faces = useFaces(provider);
+```
+
+Faces is an array of `FaceResult`. Which looks something like this.
+
+```tsx
+export declare type FaceResult = {
+  faceMesh?: {
+    positions: number[];
+    uvs: number[];
+    indices: number[];
+  };
+  transformationMatrix?: number[];
+};
+```
+
+By default it would only detect single face in an image. Use `maxFaces` param if you need to detect more than one faces.
+
+```tsx
+const faces = useFaces(provider, { maxFaces: 3 });
+```
+
+Make sure the `face_landmarker.task` is at root directory '/face_landmarker.task', if its add different location, add that location to hooks arguments
+
+```tsx
+const faces = useFaces(provider, { modelPath: "/custom/face_landmarker.task" });
+```
+
+<Callout>
+At the time of writing, this library uses a mofified version of google's `@mediapipe/tasks-vision` library.
+Because google's library currently does not expose the transformed 3D face mesh.
+
+https://github.com/google-ai-edge/mediapipe/issues/5689
+
+</Callout>
+
+### Step 4: Show the results
+
+After all this work now we only need to display the result.
+
+```tsx
+{
+  faces.map((face) => (
+    <>
+      <FaceMesh face={face} />
+      <GLTFFaceProp face={face} modelPath="/black_glasses.glb" />
+    </>
+  ));
+}
+```
+
+We loop over the faces and for every face we show a `FaceMesh`, and `black glasses model`.
+
+If you want to display just the glasses not `FaceMesh`. Use `invisible` prop of `FaceMesh` component.
+
+```tsx
+{
+  faces.map((face) => (
+    <>
+      <FaceMesh
+        invisible // Don't remove the mesh, use invisible prop
+        face={face}
+      />
+      <GLTFFaceProp face={face} modelPath="/black_glasses.glb" />
+    </>
+  ));
+}
+```
+
+Finally the result shold be something like this.
+
+<Demo description="Please allow camera access after clicking the button. Everything is processed on your device, no data leaves your device.">
+  <SimpleExample />
+</Demo>

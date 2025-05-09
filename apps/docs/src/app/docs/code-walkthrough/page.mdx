@@ -1,0 +1,368 @@
+import { Demo } from "../../(components)/Demo";
+import { SimpleExample } from "../../(components)/examples/SimpleExample";
+import { Callout } from "nextra/components";
+
+# Code Walkthrough
+
+Have a look at the demo and the code below. The following sections would explain the code step by step.
+
+<Demo description="Please allow camera access after clicking the button. Everything is processed on your device, no data leaves your device.">
+  <SimpleExample />
+</Demo>
+
+```tsx copy
+"use client";
+
+import { Environment, Loader } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import {
+  useCameraFrameProvider,
+  useFrameDimensions,
+  useFaces,
+  VideoBackground,
+  CoverFit,
+  FaceOccluder,
+  GLTFFaceProp,
+  GLTFOccluder,
+  FaceMesh,
+  SafeAreaIndicator,
+} from "face-tryon-react";
+import { Suspense } from "react";
+
+export function SimpleExample() {
+  const { provider, video, setVideo } = useCameraFrameProvider();
+  const { width, height } = useFrameDimensions(provider);
+  const faces = useFaces(provider);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <video
+        ref={setVideo}
+        autoPlay
+        playsInline
+        muted
+        style={{ visibility: "hidden", width: 1, height: 1 }}
+      />
+      <div style={{ width: "100%", height: 500 }}>
+        <Canvas
+          style={{ transform: "scaleX(-1)" }}
+          camera={{ fov: 63, position: [0, 0, 0], near: 0.01, far: 1000 }}
+        >
+          <Environment preset="studio" />
+          <CoverFit width={width} height={height}>
+            <VideoBackground
+              frameDimensions={{ width, height }}
+              image={video}
+            />
+            {faces.map((face, i) => (
+              <Suspense key={i} fallback={null}>
+                <FaceOccluder face={face} />
+                <GLTFFaceProp
+                  face={face}
+                  modelPath="/new_3d/transformed/glasses.glb"
+                />
+                <GLTFOccluder
+                  face={face}
+                  modelPath="/new_3d/reference/ear_occluder.glb"
+                />
+              </Suspense>
+            ))}
+          </CoverFit>
+        </Canvas>
+        <Loader containerStyles={{ backgroundColor: "rgba(0,0,0,0.2)" }} />
+        <SafeAreaIndicator />
+      </div>
+    </div>
+  );
+}
+```
+
+### Step 1: Get A Frame
+
+First we need to obtain a video frame or an image.
+
+**To Get A Webcam Frame**
+
+Only ref part is important, remaining attributes and style are required
+for video to work properly on chrome.
+
+```tsx
+import { useCameraFrameProvider } from "face-tryon-react";
+
+const { provider, video, setVideo } = useCameraFrameProvider();
+
+<video
+  ref={setVideo}
+  autoPlay
+  playsInline
+  muted
+  style={{ visibility: "hidden", width: 1, height: 1 }}
+/>;
+```
+
+**To Get A Video Frame**
+
+```tsx
+import { useVideoFrameProvider } from "face-tryon-react";
+
+const { provider, video, setVideo } = useVideoFrameProvider();
+
+<video
+  src="/video.mp4"
+  ref={setVideo}
+  autoPlay
+  playsInline
+  muted
+  style={{ visibility: "hidden", width: 1, height: 1 }}
+/>;
+```
+
+**To Get A Image Frame**
+
+```tsx
+import { useImageFrameProvider } from "face-tryon-react";
+
+const { provider, image, setImage } = useImageFrameProvider();
+
+<img src="/image.jpg" ref={setImage} style={{ display: "none" }} />;
+```
+
+**What is frame provider?**
+
+- A frame provider is nothing but an object with `getFrame` method.
+- Calling `getFrame` returns a `frame` and other metadata such as dimensions of the video/image etc.
+
+```tsx
+const frame = provider.getFrame();
+
+/**
+Returns an object like
+{
+    frame: HTMLVideoElement,
+    timestamp: 10;
+    dimensions: {
+        width: 640;
+        height: 480;
+    }
+}
+*/
+```
+
+<Callout type="info">
+    We store the `<video>` & `<img/>` elements in state (not ref) so it can be used reactively for example, by `VideoBackground`, which listens for changes and updates its texture accordingly.
+</Callout>
+
+### Step 2: Setup Your Scene
+
+#### 1. Setup the camera & lights
+
+Use a perspective camera with a vertical FOV of 63°. Position it at `[0, 0, 0]` so it looks into the screen.
+
+For lights we would use `Environment` provided by `@react-three/drei`.
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
+
+{
+  /* Perspective camera with 63 degreee vertical fov, at origin  */
+}
+<Canvas camera={{ fov: 63, position: [0, 0, 0] }}>
+  <Environment preset="studio" />
+  {/* Scene contents */}
+</Canvas>;
+```
+
+<Callout type="warning">
+  The code won't work properly if the camera params are different.
+</Callout>
+
+#### 2. Setup Canvas, Loader & SafeAreaIndicator
+
+The parent of `<Canvas>` must have a fixed height and position set to relative.
+The canvas and the 3D scene will fill this container.
+
+The canvas is flipped using `style={{ transform: 'scaleX(-1)' }}` to mirror the video,
+ensuring the face moves in the same direction as your head.
+
+The loader component here would just show loading progress when
+model is being downloaded.
+
+And the safe area indicator is just a centered rectangle with a green border.
+It visually indicates that the face must be at center of the image.
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+
+<div style={{ width: "100%", height: 500, position: "relative" }}>
+  <Canvas
+    style={{ transform: "scaleX(-1)" }}
+    camera={{ fov: 63, position: [0, 0, 0] }}
+  >
+    {/* Scene contents */}
+  </Canvas>
+  <Loader containerStyles={{ backgroundColor: "rgba(0,0,0,0.2)" }} />
+  <SafeAreaIndicator />
+</div>;
+```
+
+#### 3. Get Frame Dimensions
+
+We can get frame dimensions using `useFrameDimensions` hook,
+we will use the dimensions it in the next step.
+
+```tsx
+import { useCameraFrameProvider } from "face-tryon-react";
+import { useFrameDimensions } from "face-tryon-react";
+
+const { provider, video, setVideo } = useCameraFrameProvider();
+
+const { width, height } = useFrameDimensions(provider);
+```
+
+#### 4. Show the video
+
+The `VideoBackground` is just a plane that shows the video from webcam.
+
+Then we wrap `VideoBackground` in `CoverFit`. It ensures the video fills the 3D space like `object-fit: cover`.
+Without it there could be some whitespace left in the 3D Scene.
+
+```tsx
+import { VideoBackground, CoverFit } from "face-tryon-react";
+<CoverFit width={width} height={height} cameraVerticalFov={63}>
+  <VideoBackground
+    cameraVerticalFov={63}
+    frameDimensions={{ width, height }}
+    image={video}
+  />
+</CoverFit>;
+```
+
+#### Putting it all together
+
+```tsx
+"use client";
+
+import { Environment, Loader } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import {
+  useCameraFrameProvider,
+  useFrameDimensions,
+  useFaces,
+  VideoBackground,
+  CoverFit,
+  FaceOccluder,
+  GLTFFaceProp,
+  GLTFOccluder,
+  FaceMesh,
+  SafeAreaIndicator,
+} from "face-tryon-react";
+import { Suspense } from "react";
+
+export function SimpleExample() {
+  const { provider, video, setVideo } = useCameraFrameProvider();
+  const { width, height } = useFrameDimensions(provider);
+  const faces = useFaces(provider);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <video
+        ref={setVideo}
+        autoPlay
+        playsInline
+        muted
+        style={{ visibility: "hidden", width: 1, height: 1 }}
+      />
+      <div style={{ width: "100%", height: 500 }}>
+        <Canvas
+          style={{ transform: "scaleX(-1)" }}
+          camera={{ fov: 63, position: [0, 0, 0], near: 0.01, far: 1000 }}
+        >
+          <Environment preset="studio" />
+          <CoverFit width={width} height={height}>
+            <VideoBackground
+              frameDimensions={{ width, height }}
+              image={video}
+            />
+            {/* Other 3D Objects will be added here */}
+          </CoverFit>
+        </Canvas>
+        <Loader containerStyles={{ backgroundColor: "rgba(0,0,0,0.2)" }} />
+        <SafeAreaIndicator />
+      </div>
+    </div>
+  );
+}
+```
+
+### Step 3: Detect Faces
+
+Download [Face Landmarker Task](/face_landmarker.task) and place it in public directory of your code.
+
+```tsx
+const faces = useFaces(provider);
+```
+
+Faces is an array of `FaceResult`. Which looks something like this.
+
+```tsx
+export declare type FaceResult = {
+  faceMesh?: {
+    positions: number[];
+    uvs: number[];
+    indices: number[];
+  };
+  transformationMatrix?: number[];
+};
+```
+
+By default it would only detect single face in an image. Use `maxFaces` param if you need to detect more than one faces.
+
+```tsx
+const faces = useFaces(provider, { maxFaces: 3 });
+```
+
+Make sure the `face_landmarker.task` is at root directory '/face_landmarker.task', if its add different location, add that location to hooks arguments
+
+```tsx
+const faces = useFaces(provider, { modelPath: "/custom/face_landmarker.task" });
+```
+
+<Callout>
+At the time of writing, this library uses a mofified version of google's `@mediapipe/tasks-vision` library.
+Because google's library currently does not expose the transformed 3D face mesh.
+
+https://github.com/google-ai-edge/mediapipe/issues/5689
+
+</Callout>
+
+### Step 4: Show the results
+
+After all this work now we only need to display the result.
+
+```tsx
+{
+  faces.map((face, i) => (
+    <Suspense key={i} fallback={null}>
+      <FaceOccluder face={face} />
+      <GLTFFaceProp face={face} modelPath="/new_3d/transformed/glasses.glb" />
+      <GLTFOccluder
+        face={face}
+        modelPath="/new_3d/reference/ear_occluder.glb"
+      />
+    </Suspense>
+  ));
+}
+```
+
+We loop over the faces, for each face we display
+
+1. FaceOccluder: Hides parts blocked by the face mesh with partial forehead.
+2. GLTFFaceProp: Displays the 3D model aligned to the face.
+3. GLTFOccluder: Blocks parts of the 3D model behind the the occluder.
+
+Finally the result should be something like this.
+
+<Demo description="Please allow camera access after clicking the button. Everything is processed on your device, no data leaves your device.">
+  <SimpleExample />
+</Demo>

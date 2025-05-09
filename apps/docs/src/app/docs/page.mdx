@@ -1,0 +1,46 @@
+import { Demo } from "../(components)/Demo";
+import { TryonExample } from "../(components)/examples/TryonExample";
+
+# 🕶️ **Face Tryon**
+
+Add virtual try-on using googles mediapipe in minutes with just a few lines of code! 🚀
+
+<Demo>
+  <TryonExample />
+</Demo>
+
+## 👀 How it works?
+
+1. 🔄 Fit your 3D model (glasses, hat, etc.) on a standard face model.
+2. ✨ Add a few lines of code to your app.
+3. 🤓 Your 3D model aligns on the user’s face!
+
+## 🧠 Current limitations & workarounds
+
+Mediapipe face landmarker task is currently in beta and has a few limitations.
+
+### 1. Partial face mesh
+
+#### Limitation
+
+Unlike Snapchat, which provides a full face mesh including the skull, full forehead, and ears, Mediapipe only offers a front-facing mesh with a partial forehead.
+This makes proper occlusion difficult for example, the temple tips of glasses that are behind ears remain visible due to missing ears.
+Similary the bottom of a cap that is covered by skull remains visible due to missing skull.
+[Issue #2104](https://github.com/google-ai-edge/mediapipe/issues/2104)
+[Issue #5595](https://github.com/google-ai-edge/mediapipe/issues/5944)
+
+#### Workaround
+
+We add invisible 3D objects representing the ears, skull, and forehead.
+These act as occluders blocking parts of 3D objects (like glasses) that should appear behind the skull/ears.
+
+### 2. Misaligned Objects When Face Isn't Centered
+
+#### Limitation
+
+The face transform matrix from Mediapipe doesn’t reliably align objects to the face especially when the face is off-center.
+[Issue #4759](https://github.com/google-ai-edge/mediapipe/issues/4759)
+
+#### Workaround
+
+We add visual indicator (a box with green border) to define a "safe area" where the face should remain for accurate alignment.

@@ -1,0 +1,122 @@
+import { Demo } from "../../(components)/Demo";
+import { ModelViewer } from "../../(components)/ModelViewer";
+import { SimpleExample } from "../../(components)/examples/SimpleExample";
+import { Callout } from "nextra/components";
+
+# Preparing 3D Model
+
+Before you can display your 3D Models like glasses or caps on users face.
+You need to align them on standard face and export the properly aligned 3D Model.
+
+## Understanding Standard Face
+
+The [Standard Face 3D Model](/new_3d/reference/standard_face.glb) helps align your 3D models to the user’s face.
+It extends Mediapipe’s face mesh with reference geometry. It includes:
+
+#### 1. Front of the face
+
+This is the canonical mesh from Mediapipe. At runtime, Mediapipe generates a face mesh with the same vertex count and topology, but with deformed geometry to match the user’s face.
+
+#### 2. Skull
+
+Not generated at runtime. Helps you position objects on the face.
+
+#### 3. Ears (rectangles)
+
+Not generated at runtime. Helps you position objects on the face.
+
+<ModelViewer modelPath="/new_3d/reference/standard_face.glb" />
+
+## Process
+
+To prepare your 3D Model you need to align your 3D Model with standard face and export it.
+In addition to this you also to create occluder model, it occlueds (blocks/hides) parts of your 3D Model that is blocked by users skull, forehead or ears, and should not be visible.
+
+### 1. Import Standard Face Model
+
+- Download [Standard Face 3D Model](/new_3d/reference/standard_face.glb)
+- Open [Three JS Editor](https://threejs.org/editor/)
+- Click File / Import and select standard face model
+- Select scene from object hierarchy tree on the right, change Environment to room.
+
+![Standard Face Model in threejs editor](/screenshots/standard-face-model-in-editor.png)
+
+### 2. Align your 3D Object on Face
+
+Import your 3D object, by clicking File / Import.
+
+Align it as close as possible, it could take multiple tries until model is properly aligned.
+If the model dosen't fit on users face, then you can adjust the alignment and try again.
+
+You can adjust, scale, position, rotation etc.
+
+In our case we imported [Original Glasses Model](/new_3d/original/glasses.glb).
+And after alignment we got [Aligned Glasses Model](/new_3d/transformed/glasses.glb).
+
+Don't export your model yet. We still need to create ocluder.
+
+![Standard Face Model in threejs editor](/screenshots/standard-face-and-glasses.png)
+
+### 3. Create Occluder(s)
+
+After removing everything from the standard face except the partial front face.
+We look at it from different angles.
+
+<Callout type="info">
+  Don't remove these parts of the face, we've removed it here just to make
+  explanation easier.
+</Callout>
+
+#### Side View
+
+From the side view we can see tip of temples which should be hidden because it's behind ears.
+But we dont have full face mesh, so we need to add some occluders here.
+
+![Glasses side view](/screenshots/glasses-side-view.png)
+
+#### Front Top View
+
+Looking to the front face from this angle, we can see the temple, but they should not be visible because skull blocks the view.
+So we need occluder to block from this view.
+
+![Front Top View](/screenshots/glasses-front-top-view.png)
+
+#### Ear Occluder
+
+So we need two occluders, but just one occluder would be good enough for the demo.
+
+We add rectangles as a proxy for ears. Now our occluders would block/hide everything thats behind it.
+
+![Ear Occluder](/screenshots/ear-occluders.png)
+
+#### Reusing Occluder
+
+The occluder for ears are reusable you can use it for every pair of glasses.
+
+### 4. Save the threejs editor project. (optional)
+
+Sometimes it could take multiple tries to get occluder and the 3D Model properly aligned with the face.
+Instead of doing all the steps again you could save therejs editor project and open it again.
+
+Click on file / save. This will create a json file.
+
+To open it again if/when needed click file / open.
+
+![Glasses with face and occluder](/screenshots/face-occluder-and-glasses.png)
+
+### 5. Export 3D Model and Occluder in Separate Files
+
+- Delete face and occluder then export model by clicking file / export, select glb format.
+- Press `ctrl+z` to undo delete until face, occluder, your 3D Model are present in the scene.
+- Delete face and your 3D Model and export occluder.
+
+After this is complete you would have two files.
+
+1. Model File: [Aligned Glasses Model](/new_3d/transformed/glasses.glb)
+
+   <ModelViewer modelPath="/new_3d/transformed/glasses.glb" />
+
+2. Occluder File: [Ear Occluder](/new_3d/reference/ear_occluder.glb)
+   <ModelViewer modelPath="/new_3d/reference/ear_occluder.glb" />
+
+If you are working with glasses you can reuse the same ear occluder

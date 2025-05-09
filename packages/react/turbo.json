@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "dev": {
+      "dependsOn": ["face-tryon-core#build"]
+    },
+    "build": {
+      "dependsOn": ["face-tryon-core#build"],
+      "outputs": [
+        "dist/**"
+      ]
+    }
+  }
+}

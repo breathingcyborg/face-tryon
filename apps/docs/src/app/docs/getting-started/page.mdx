@@ -1,0 +1,105 @@
+import { Demo } from "../../(components)/Demo";
+import { SimpleExample } from "../../(components)/examples/SimpleExample";
+import { Callout } from "nextra/components";
+
+# Getting Started
+
+### 1. Create new react app
+
+```bash copy
+npm create vite@latest my-app -- --template react-ts
+cd ./my-app
+```
+
+### 2. Install dependencies
+
+```bash copy
+npm i three @react-three/fiber @react-three/drei
+npm i face-tryon-core face-tryon-react
+```
+
+### 3. Place 3d model, occluder model, and task in public directory
+
+1. Download [Glasses Model](/new_3d/transformed/glasses.glb). and place it in public directory of your code.
+2. Download [Ear Occluder](/new_3d/reference/ear_occluder.glb). and place it in public directory of your code.
+3. Download [Face Landmarker Task](/face_landmarker.task) and place it in public directory of your code.
+
+<Callout type="info">
+  Ear occluder model contains fake ears (two rectangles). They are invisible but
+  occlude (block) parts of glasses behind them.
+</Callout>
+
+### 4. Add a few lines of code
+
+```tsx copy
+import { Environment, Loader } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { CAMERA_POSITION, CAMERA_VERTICAL_FOV_DEGRESS } from "face-tryon-core";
+import {
+  useCameraFrameProvider,
+  useFrameDimensions,
+  useFaces,
+  VideoBackground,
+  CoverFit,
+  FaceOccluder,
+  GLTFFaceProp,
+  GLTFOccluder,
+  FaceMesh,
+} from "face-tryon-react";
+import { Suspense } from "react";
+
+export function SimpleExample() {
+  const { provider, video, setVideo } = useCameraFrameProvider();
+  const { width, height } = useFrameDimensions(provider);
+  const faces = useFaces(provider);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <video ref={setVideo} style={{ display: "none" }} autoPlay muted />
+      <div style={{ width: "100%", height: 500 }}>
+        <Canvas
+          camera={{
+            fov: CAMERA_VERTICAL_FOV_DEGRESS,
+            position: CAMERA_POSITION,
+            near: 0.01,
+            far: 1000,
+          }}
+        >
+          <Environment preset="studio" />
+          <CoverFit width={width} height={height}>
+            <VideoBackground
+              frameDimensions={{ width, height }}
+              image={video}
+            />
+            {faces.map((face, i) => (
+              <Suspense key={i} fallback={null}>
+                <FaceOccluder face={face} />
+                <GLTFFaceProp
+                  face={face}
+                  modelPath="/new_3d/transformed/glasses.glb"
+                />
+                <GLTFOccluder
+                  face={face}
+                  modelPath="/new_3d/reference/ear_occluder.glb"
+                />
+              </Suspense>
+            ))}
+          </CoverFit>
+        </Canvas>
+        <Loader containerStyles={{ backgroundColor: "rgba(0,0,0,0.2)" }} />
+      </div>
+    </div>
+  );
+}
+```
+
+Here is how the output should look like.
+
+<Callout type="info">
+  Since we only have front part of the facemesh with partial forehead, glasses
+  would go through your head if you look at them from top.
+</Callout>
+
+<Demo description="Please allow camera access after clicking the button. Everything is processed on your device, no data leaves your device.">
+  <SimpleExample />
+</Demo>
