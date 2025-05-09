@@ -6,7 +6,8 @@ import {
   FaceLandmarkerResult,
   FilesetResolver,
   NormalizedLandmark,
-} from "@mediapipe/tasks-vision-patched";
+} from "mediapipe-tasks-vision-with-runtime-face";
+
 import { FrameProvider, FrameProviderType } from "./FrameProvider";
 
 export type FaceDetectorOptions = {

@@ -1,6 +1,6 @@
 {
   "name": "face-tryon-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "files": [
     "dist"
@@ -21,9 +21,6 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src/ --max-warnings 0"
   },
-  "dependencies": {
-    "@mediapipe/tasks-vision-patched": "file:vision_pkg_patched.tar.gz"
-  },
   "devDependencies": {
     "@types/three": "^0.174.0",
     "eslint": "^9.22.0",
@@ -36,5 +33,8 @@
   },
   "peerDependencies": {
     "three": ">=0.159.0"
+  },
+  "dependencies": {
+    "mediapipe-tasks-vision-with-runtime-face": "^0.10.23"
   }
 }
