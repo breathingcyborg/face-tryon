@@ -19,20 +19,20 @@ import { Suspense, useState } from "react";
 const faceProps = [
   {
     name: "Glasses",
-    modelPath: "/new_3d/transformed/glasses.glb",
-    occluderPath: "/new_3d/reference/ear_occluder.glb",
+    modelPath: "/glasses.glb",
+    occluderPath: "/ear_occluder.glb",
     imagePath: "/previews/glasses.png",
   },
   {
     name: "Cap",
-    modelPath: "/new_3d/transformed/baseball_cap_ny.glb",
-    occluderPath: "/new_3d/transformed/baseball_cap_ny_occluder.glb",
+    modelPath: "/baseball_cap_ny.glb",
+    occluderPath: "/baseball_cap_ny_occluder.glb",
     imagePath: "/previews/cap.png",
   },
   {
     name: "Wizard Hat",
-    modelPath: "/new_3d/transformed/wizard_hat.glb",
-    occluderPath: "/new_3d/transformed/wizard_hat_occluder.glb",
+    modelPath: "/wizard_hat.glb",
+    occluderPath: "/wizard_hat_occluder.glb",
     imagePath: "/previews/wizard_hat.png",
   },
 ];

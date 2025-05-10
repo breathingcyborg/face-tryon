@@ -20,6 +20,9 @@ const meta: MetaRecord = {
   "code-walkthrough": {},
   "example-occluders": {},
   "tryon-example": {},
+  credits: {
+    title: "🎨 🙏 Credits",
+  },
 };
 
 export default meta;

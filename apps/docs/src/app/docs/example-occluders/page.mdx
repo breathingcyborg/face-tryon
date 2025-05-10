@@ -7,13 +7,13 @@ import { OBJModel } from "../../(components)/OBJModel.tsx";
 ## Glasses
 
 For glasses two rectangle, one for each ear is good enough.
-[Download Ear Occluder](/new_3d/reference/ear_occluder.glb)
+[Download Ear Occluder](/ear_occluder.glb)
 
 <BlankScene key="glasses">
   <group scale={[0.2, 0.2, 0.2]}>
-    <GLTFModel modelPath="/new_3d/reference/canonical_face_model.glb" />
-    <GLTFModel modelPath="/new_3d/reference/ear_occluder.glb" />
-    <GLTFModel modelPath="/new_3d/transformed/glasses.glb" />
+    <GLTFModel modelPath="/canonical_face_model.glb" />
+    <GLTFModel modelPath="/ear_occluder.glb" />
+    <GLTFModel modelPath="/glasses.glb" />
   </group>
 </BlankScene>
 
@@ -23,13 +23,13 @@ For this cap we've used cylinder with different top and bottom radius.
 The top end of the cylinder covers the inside of the cap.
 The bottom end of the cylinder covers parts behind forehead.
 
-[Download Occluder](/new_3d/reference/baseball_cap_ny_occluder.glb)
+[Download Occluder](/baseball_cap_ny_occluder.glb)
 
 <BlankScene key="cap">
   <group scale={[0.2, 0.2, 0.2]}>
-    <GLTFModel modelPath="/new_3d/reference/canonical_face_model.glb" />
-    <GLTFModel modelPath="/new_3d/transformed/baseball_cap_ny_occluder.glb" />
-    <GLTFModel modelPath="/new_3d/transformed/baseball_cap_ny.glb" />
+    <GLTFModel modelPath="/canonical_face_model.glb" />
+    <GLTFModel modelPath="/baseball_cap_ny_occluder.glb" />
+    <GLTFModel modelPath="/baseball_cap_ny.glb" />
   </group>
 </BlankScene>
 
@@ -42,10 +42,12 @@ The bottom of the cylinder acts like forehead and blocks parts behind it.
 Besides this we've left some space between cylinder and facemesh.
 Without the space the cylinder could sometimes bump into the facemesh.
 
+[Download Occluder](/wizard_hat_occluder.glb)
+
 <BlankScene key="hat">
   <group scale={[0.2, 0.2, 0.2]}>
-    <GLTFModel modelPath="/new_3d/reference/canonical_face_model.glb" />
-    <GLTFModel modelPath="/new_3d/transformed/wizard_hat_occluder.glb" />
-    <GLTFModel modelPath="/new_3d/transformed/wizard_hat.glb" />
+    <GLTFModel modelPath="/canonical_face_model.glb" />
+    <GLTFModel modelPath="/wizard_hat_occluder.glb" />
+    <GLTFModel modelPath="/wizard_hat.glb" />
   </group>
 </BlankScene>

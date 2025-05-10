@@ -13,7 +13,7 @@ export const metadata = {
 
 const banner = <Banner dismissible={false}>Face tryon (beta) 🎉</Banner>;
 const navbar = <Navbar logo={<b>Face Tryon (beta)</b>} />;
-const footer = <Footer>MIT {new Date().getFullYear()} © Face Tryon.</Footer>;
+const footer = <Footer></Footer>;
 
 export default async function RootLayout({
   children,

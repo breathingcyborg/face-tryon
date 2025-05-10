@@ -10,7 +10,7 @@ You need to align them on standard face and export the properly aligned 3D Model
 
 ## Understanding Standard Face
 
-The [Standard Face 3D Model](/new_3d/reference/standard_face.glb) helps align your 3D models to the user’s face.
+The [Standard Face 3D Model](/standard_face.glb) helps align your 3D models to the user’s face.
 It extends Mediapipe’s face mesh with reference geometry. It includes:
 
 #### 1. Front of the face
@@ -25,7 +25,7 @@ Not generated at runtime. Helps you position objects on the face.
 
 Not generated at runtime. Helps you position objects on the face.
 
-<ModelViewer modelPath="/new_3d/reference/standard_face.glb" />
+<ModelViewer modelPath="/standard_face.glb" />
 
 ## Process
 
@@ -34,7 +34,7 @@ In addition to this you also to create occluder model, it occlueds (blocks/hides
 
 ### 1. Import Standard Face Model
 
-- Download [Standard Face 3D Model](/new_3d/reference/standard_face.glb)
+- Download [Standard Face 3D Model](/standard_face.glb)
 - Open [Three JS Editor](https://threejs.org/editor/)
 - Click File / Import and select standard face model
 - Select scene from object hierarchy tree on the right, change Environment to room.
@@ -50,8 +50,8 @@ If the model dosen't fit on users face, then you can adjust the alignment and tr
 
 You can adjust, scale, position, rotation etc.
 
-In our case we imported [Original Glasses Model](/new_3d/original/glasses.glb).
-And after alignment we got [Aligned Glasses Model](/new_3d/transformed/glasses.glb).
+In our case we imported [Original Glasses Model](/original-3d/glasses.glb).
+And after alignment we got [Aligned Glasses Model](/glasses.glb).
 
 Don't export your model yet. We still need to create ocluder.
 
@@ -112,11 +112,11 @@ To open it again if/when needed click file / open.
 
 After this is complete you would have two files.
 
-1. Model File: [Aligned Glasses Model](/new_3d/transformed/glasses.glb)
+1. Model File: [Aligned Glasses Model](/glasses.glb)
 
-   <ModelViewer modelPath="/new_3d/transformed/glasses.glb" />
+   <ModelViewer modelPath="/glasses.glb" />
 
-2. Occluder File: [Ear Occluder](/new_3d/reference/ear_occluder.glb)
-   <ModelViewer modelPath="/new_3d/reference/ear_occluder.glb" />
+2. Occluder File: [Ear Occluder](/ear_occluder.glb)
+   <ModelViewer modelPath="/ear_occluder.glb" />
 
 If you are working with glasses you can reuse the same ear occluder

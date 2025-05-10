@@ -10,7 +10,7 @@ import { Object3D } from "three";
 export type GLTFOccluderProps = {
   face: FaceResult;
   modelPath: string;
-} & React.ComponentProps<typeof Occluder>;
+} & Omit<React.ComponentProps<typeof Occluder>, 'model'>;
 
 export const GLTFOccluder = forwardRef<Object3D, GLTFOccluderProps>(
   ({ face, modelPath, ...props }, ref) => {

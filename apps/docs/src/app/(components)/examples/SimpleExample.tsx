@@ -49,14 +49,8 @@ export function SimpleExample() {
             {faces.map((face, i) => (
               <Suspense key={i} fallback={null}>
                 <FaceOccluder face={face} />
-                <GLTFFaceProp
-                  face={face}
-                  modelPath="/new_3d/transformed/glasses.glb"
-                />
-                <GLTFOccluder
-                  face={face}
-                  modelPath="/new_3d/reference/ear_occluder.glb"
-                />
+                <GLTFFaceProp face={face} modelPath="/glasses.glb" />
+                <GLTFOccluder face={face} modelPath="/ear_occluder.glb" />
               </Suspense>
             ))}
           </CoverFit>

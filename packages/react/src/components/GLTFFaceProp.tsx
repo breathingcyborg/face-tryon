@@ -10,7 +10,7 @@ import { Object3D } from "three";
 type GLTFFacePropProps = {
   face: FaceResult;
   modelPath: string;
-} & React.ComponentProps<typeof FaceProp>;
+} & Omit<React.ComponentProps<typeof FaceProp>, 'model'>;
 
 export const GLTFFaceProp = forwardRef<Object3D, GLTFFacePropProps>(
   ({ face, modelPath, ...props }, ref) => {

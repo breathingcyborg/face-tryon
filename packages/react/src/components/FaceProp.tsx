@@ -13,11 +13,11 @@ type FacePropProps = {
   // props for primitive
   // using ThreeElements['primitive'] & { face, model } fails
   // because ThreeElements['primitive'] is too broad and overrides face and model
-  props: Omit<ThreeElements['primitive'], 'object'>
+  props?: Omit<ThreeElements['primitive'], 'object'>
 };
 
 export const FaceProp = forwardRef<Object3D, FacePropProps>(
-  ({ face, model, props }, ref) => {
+  ({ face, model, props = {} }, ref) => {
     const matrix = useFaceTransformMatrix(face);
 
     const clone = useMemo(() => deepCloneWithMaterial(model), [model]);

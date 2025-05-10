@@ -12,11 +12,11 @@ export type OccluderProps = {
   // props for primitive
   // using ThreeElements['primitive'] & { face, model } fails
   // because ThreeElements['primitive'] is too broad and overrides face and model
-  props: Omit<ThreeElements['primitive'], 'object'>
+  props?: Omit<ThreeElements['primitive'], 'object'>
 };
 
 export const Occluder = forwardRef<Object3D, OccluderProps>(
-  ({ face, model, props }, ref) => {
+  ({ face, model, props = {} }, ref) => {
     const matrix = useFaceTransformMatrix(face);
 
     const occluderModel = useMemo(() => {
