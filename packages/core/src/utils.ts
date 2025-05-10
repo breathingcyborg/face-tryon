@@ -258,7 +258,7 @@ export function getCoverFitScale({
   return [scalingFactor, scalingFactor, 1];
 }
 
-export function makeOccluder(model: THREE.Group) {
+export function makeOccluder(model: THREE.Object3D) {
   model.traverse((child) => {
     if (child instanceof THREE.Mesh || (child as THREE.Mesh).isMesh) {
       const mesh = child as THREE.Mesh;
@@ -267,6 +267,7 @@ export function makeOccluder(model: THREE.Group) {
           ? mesh.material
           : [mesh.material];
         materials.forEach((mat) => {
+          console.debug({ occluderMatId: mat.id });
           mat.colorWrite = false;
           // mat.depthTest = true;
           // mat.depthWrite = true;
@@ -302,4 +303,39 @@ function calculateExtendedVertex(
     vertex[1] + direction[1] * extensionFactor,
     vertex[2] + direction[2] * extensionFactor,
   ];
+}
+
+export function deepCloneWithMaterial(model: THREE.Object3D | THREE.Group) {
+  const clone = model.clone(true);
+
+  const materialCache = new Map<number, THREE.Material>();
+
+  const getClonedMat = (mat: THREE.Material) => {
+    const id = mat.id;
+
+    if (!materialCache.has(id)) {
+      const clonedMaterial = mat.clone();
+      materialCache.set(id, clonedMaterial);
+    }
+
+    return materialCache.get(id) as THREE.Material;
+  };
+
+  clone.traverse((child) => {
+    if (child instanceof THREE.Mesh || (child as THREE.Mesh).isMesh) {
+      const mesh = child as THREE.Mesh;
+
+      if (mesh.material) {
+        if (Array.isArray(mesh.material)) {
+          mesh.material = mesh.material.map((mat) => getClonedMat(mat));
+          return;
+        }
+        mesh.material = getClonedMat(mesh.material);
+      }
+    }
+  });
+
+  materialCache.clear();
+
+  return clone;
 }

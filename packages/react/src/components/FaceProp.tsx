@@ -1,23 +1,30 @@
 "use client";
 
-import { forwardRef, JSX, useEffect } from "react";
+import { forwardRef, useEffect, useMemo } from "react";
 import { useFaceTransformMatrix } from "../hooks/useFaceTransformMatrix";
-import { FaceResult } from "face-tryon-core";
+import { deepCloneWithMaterial, FaceResult } from "face-tryon-core";
 import { isMesh } from "face-tryon-core";
 import { Object3D, Object3DEventMap } from "three";
+import { ThreeElements } from "@react-three/fiber";
 
 type FacePropProps = {
   face: FaceResult;
   model: Object3D;
-} & JSX.IntrinsicElements["primitive"];
+  // props for primitive
+  // using ThreeElements['primitive'] & { face, model } fails
+  // because ThreeElements['primitive'] is too broad and overrides face and model
+  props: Omit<ThreeElements['primitive'], 'object'>
+};
 
 export const FaceProp = forwardRef<Object3D, FacePropProps>(
-  ({ face, model, ...props }, ref) => {
+  ({ face, model, props }, ref) => {
     const matrix = useFaceTransformMatrix(face);
 
+    const clone = useMemo(() => deepCloneWithMaterial(model), [model]);
+
     useEffect(() => {
-      if (!model) return;
-      model.traverse?.((child: Object3D<Object3DEventMap>) => {
+      if (!clone) return;
+      clone.traverse?.((child: Object3D<Object3DEventMap>) => {
         if (isMesh(child)) {
           const materials = Array.isArray(child.material)
             ? child.material
@@ -28,7 +35,7 @@ export const FaceProp = forwardRef<Object3D, FacePropProps>(
           });
         }
       });
-    }, [model]);
+    }, [clone]);
 
     if (!matrix) return null;
 
@@ -38,7 +45,7 @@ export const FaceProp = forwardRef<Object3D, FacePropProps>(
         ref={ref}
         matrix={matrix}
         matrixAutoUpdate={false}
-        object={model}
+        object={clone}
         {...props}
       />
     );

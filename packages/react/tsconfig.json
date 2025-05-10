@@ -1,4 +1,5 @@
 {
+  "extends":  "face-tryon-typescript-config/vite.json",
   "compilerOptions": {
     "baseUrl": "./src",
     "rootDir": "./src",

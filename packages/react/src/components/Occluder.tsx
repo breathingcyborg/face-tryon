@@ -1,21 +1,27 @@
 "use client";
 
-import { forwardRef, JSX, useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { useFaceTransformMatrix } from "../hooks/useFaceTransformMatrix";
-import { FaceResult, makeOccluder } from "face-tryon-core";
+import { deepCloneWithMaterial, FaceResult, makeOccluder } from "face-tryon-core";
 import { Object3D } from "three";
+import { ThreeElements } from "@react-three/fiber";
 
 export type OccluderProps = {
   face: FaceResult;
   model: Object3D;
-} & JSX.IntrinsicElements["primitive"];
+  // props for primitive
+  // using ThreeElements['primitive'] & { face, model } fails
+  // because ThreeElements['primitive'] is too broad and overrides face and model
+  props: Omit<ThreeElements['primitive'], 'object'>
+};
 
 export const Occluder = forwardRef<Object3D, OccluderProps>(
-  ({ face, model, ...props }, ref) => {
+  ({ face, model, props }, ref) => {
     const matrix = useFaceTransformMatrix(face);
 
     const occluderModel = useMemo(() => {
-      return makeOccluder(model);
+      const clone = deepCloneWithMaterial(model);
+      return makeOccluder(clone);
     }, [model]);
 
     if (!matrix) return null;

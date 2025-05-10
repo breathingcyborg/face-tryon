@@ -4,7 +4,7 @@ import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Occluder } from "./Occluder";
 import { FaceResult } from "face-tryon-core";
-import { forwardRef, useMemo } from "react";
+import { forwardRef } from "react";
 import { Object3D } from "three";
 
 export type GLTFOccluderProps = {
@@ -18,8 +18,6 @@ export const GLTFOccluder = forwardRef<Object3D, GLTFOccluderProps>(
 
     const scene = Array.isArray(model) ? model[0].scene : model.scene;
 
-    const cloned = useMemo(() => scene.clone(true), [scene]);
-
-    return <Occluder face={face} model={cloned} ref={ref} {...props} />;
+    return <Occluder face={face} model={scene} ref={ref} props={props} />;
   },
 );

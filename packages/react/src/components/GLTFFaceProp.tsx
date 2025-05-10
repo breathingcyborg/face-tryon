@@ -4,7 +4,7 @@ import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { FaceProp } from "./FaceProp";
 import { FaceResult } from "face-tryon-core";
-import { forwardRef, useMemo } from "react";
+import { forwardRef } from "react";
 import { Object3D } from "three";
 
 type GLTFFacePropProps = {
@@ -18,8 +18,6 @@ export const GLTFFaceProp = forwardRef<Object3D, GLTFFacePropProps>(
 
     const scene = Array.isArray(model) ? model[0].scene : model.scene;
 
-    const cloned = useMemo(() => scene.clone(true), [scene]);
-
-    return <FaceProp face={face} model={cloned} ref={ref} {...props} />;
+    return <FaceProp face={face} model={scene} ref={ref} props={props} />;
   },
 );
