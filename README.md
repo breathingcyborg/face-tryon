@@ -1,8 +1,11 @@
 # Face Tryon
 
-Create face tryon in minutes.
+Create face try-ons in minutes.
 
-You can check out the demo, at this link.
-[Demo](https://facetryon.com/docs)
+https://github.com/user-attachments/assets/657c28ec-5abd-4936-a925-338b9d3d3073
 
-There are a few bugs that would be fixed soon. And readme and docs would be updated soon.
+## 🚀 Demo
+Try it live: [facetryon.com/docs](https://facetryon.com/docs)
+
+## 📘 Documentation
+Docs available at [facetryon.com/docs](https://facetryon.com/docs)
